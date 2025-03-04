@@ -8,3 +8,13 @@
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
+.side-drawer__close-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 3rem;
+  color: #ff0505;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
