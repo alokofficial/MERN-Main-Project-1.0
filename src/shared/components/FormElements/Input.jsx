@@ -1,15 +1,59 @@
-import React from "react";
+import React, { useReducer } from "react";
 
 import "./Input.css";
+const inputReducer = (state, action) => {
+  switch (action.type) {
+    case "CHANGE":
+      return {
+        ...state,
+        value: action.val,
+        isValid: true,
+      };
+    default:
+      return state;
+  }
+};
+const Input = (props) => {
+  const [inputState, dispatch] = useReducer(inputReducer, {
+    value: "",
+    isValid: false,
+  });
+  const changeHandler = (event) => {
+    dispatch({
+      type: "CHANGE",
+      val: event.target.value,
+    });
+  };
+  const element =
+    props.element === "input" ? (
+      <input
+        type={props.type}
+        placeholder={props.placeholder}
+        id={props.id}
+        onChange={changeHandler}
+        value={inputState.value}
+      />
+    ) : (
+      <textarea
+        id={props.id}
+        rows={props.rows || 3}
+        placeholder={props.placeholder}
+        onChange={changeHandler}
+        value={inputState.value}
+      />
+    );
 
-const Input = props => {
-    const element=props.element==='input'?(<input type={props.type} placeholder={props.placeholder} id={props.id} />):(<textarea id={props.id} rows={props.rows || 3} placeholder={props.placeholder}/>);
-
-    return <div className="form-control">
-        <label htmlFor={props.id}>{props.label}</label>
-        {element}
+  return (
+    <div
+      className={`form-control ${
+        !inputState.isValid && "form-control--invalid"
+      }`}
+    >
+      <label htmlFor={props.id}>{props.label}</label>
+      {element}
+      {!inputState.isValid && <p>{props.errorText}</p>}
     </div>
+  );
+};
 
-}
-
-export default Input
+export default Input;
