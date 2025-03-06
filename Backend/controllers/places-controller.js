@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid";
 import DUMMY_PLACES from "../db/dummy-data.js";
 import HttpError from "../models/http-error.js";
 export const getPlaceById = (req, res, next) => {
@@ -18,5 +19,21 @@ export const getPlaceByUserId = (req, res, next) => {
     res.json({places});
    
 }
+export const createPlace = (req, res, next) => {
+    const { title, description,coordinates, address, creator } = req.body;
+  
+    const createdPlace = {
+      id: uuid(),
+      title,
+      description,
+      location: coordinates,
+      address,
+      creator,
+    };
+  
+    DUMMY_PLACES.push(createdPlace); // for pushing in last we use unshift method.
+  
+    res.status(201).json({ place: createdPlace });
+  };
 
  
