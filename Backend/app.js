@@ -10,8 +10,12 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 app.use('/api/places',placesRoutes);
 
-app.use((req, res, next) => {
-    res.status(404).json({message:"Not Found"})
+app.use((error,req, res, next) => { //error middleware by express
+    if(req.headerSent){
+        return next(error)
+    }
+    res.status(error.code || 500)
+    res.json({message: error.message || 'An unknown error occurred'})
 })
 
 app.listen(5000, () => {
