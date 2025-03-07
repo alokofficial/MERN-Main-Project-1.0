@@ -1,10 +1,16 @@
 import { v4 as uuid } from "uuid";
 import DUMMY_USERS from "../db/users-dummy-data.js";
 import HttpError from "../models/http-error.js";
+import { validationResult } from "express-validator";
 export const getUsers = (req, res, next) => {
    res.json({users:DUMMY_USERS})
 };
 export const userSignup = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new HttpError("Invalid inputs passed, please check your data", 422);
+    }
+    
     const {name, email, password} = req.body
 
     const hasUser = DUMMY_USERS.find(u=>u.email===email)
