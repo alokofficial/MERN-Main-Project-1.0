@@ -10,11 +10,11 @@ export const getPlaceById = (req, res, next) => {
     res.json({ place });
   };
 
-export const getPlaceByUserId = (req, res, next) => {
+export const getPlacesByUserId = (req, res, next) => {
     const userId = req.params.uid;
     const places = DUMMY_PLACES.filter(p => p.creator === userId);
-    if(!places){
-     return next(new HttpError("Place not found for this user", 404))
+    if(!places || places.length === 0){
+     return next(new HttpError("Place not found places for this userid", 404))
     }
     res.json({places});
    
