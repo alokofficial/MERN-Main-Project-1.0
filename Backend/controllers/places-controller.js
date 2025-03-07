@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import DUMMY_PLACES from "../db/dummy-data.js";
+import DUMMY_PLACES from "../db/places-dummy-data.js";
 import HttpError from "../models/http-error.js";
 export const getPlaceById = (req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}

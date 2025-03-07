@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 
 import placesRoutes from "./routes/places-routes.js";
+import usersRoutes from "./routes/users-routes.js";
 import HttpError from "./models/http-error.js";
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(bodyParser.json())
 // app.use(bodyParser.urlencoded({extended:true}))
 
 app.use('/api/places',placesRoutes);
+app.use('/api/users',usersRoutes);
 
 app.use((req, res, next) => {
     const error = new HttpError('Could not find this route', 404)
