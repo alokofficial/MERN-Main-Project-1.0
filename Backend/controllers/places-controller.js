@@ -52,6 +52,14 @@ export const updatePlace = (req, res, next) => {
 
 
 
-export const deletePlace = (req, res, next) => {};
+export const deletePlace = (req, res, next) => {
+    const placeId = req.params.pid;
+    const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+    if (placeIndex === -1) {
+      throw new HttpError("Place not found", 404);
+    }
+    DUMMY_PLACES.splice(placeIndex, 1);
+    res.status(200).json({ message: "Deleted place." });
+};
 
  
