@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import DUMMY_PLACES from "../db/places-dummy-data.js";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
+import { getCoordsForAddress } from "../util/location.js";
 export const getPlaceById = (req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}
     const place = DUMMY_PLACES.find((p) => p.id === placeId);
@@ -20,12 +21,21 @@ export const getPlacesByUserId = (req, res, next) => {
     res.json({places});
    
 }
-export const createPlace = (req, res, next) => {
+export const createPlace = async (req, res, next) => {
     const { title, description,coordinates, address, creator } = req.body;
+
+    
+    try {
+      
+      coordinates = await getCoordsForAddress(address);
+      
+    } catch (error) {
+      return next(error)
+    }
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      throw new HttpError("Invalid inputs passed, please check your data", 422);
+      return next(new HttpError("Invalid inputs passed, please check your data", 422));
     }
   
     const createdPlace = {
