@@ -20,13 +20,21 @@ export const getPlaceById = async(req, res, next) => {
     res.json({ place: place.toObject({ getters: true }) }); // to get the id in normal form 
   };
 
-export const getPlacesByUserId = (req, res, next) => {
+export const getPlacesByUserId = async(req, res, next) => {
     const userId = req.params.uid;
-    const places = DUMMY_PLACES.filter(p => p.creator === userId);
+
+    let places
+    try {
+      places = await Place.find({creator: userId})
+    } catch (err) {
+      const error = new HttpError("Something went wrong", 404)
+      return next(error)
+    }
+
     if(!places || places.length === 0){
      return next(new HttpError("Place not found places for this userid", 404))
     }
-    res.json({places});
+    res.json({places: places.map(place => place.toObject({getters: true}))});
    
 }
 export const createPlace = async (req, res, next) => {
