@@ -75,7 +75,7 @@ export const createPlace = async (req, res, next) => {
   
     res.status(201).json({ place: createdPlace });
   };
-export const updatePlace = (req, res, next) => {
+export const updatePlace = async(req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new HttpError("Invalid inputs passed, please check your data", 422);
@@ -83,15 +83,36 @@ export const updatePlace = (req, res, next) => {
     const placeId = req.params.pid;
     const { title, description } = req.body;
 
-    const updatePlace = {...DUMMY_PLACES.find((p) => p.id === placeId)};
-    const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+    let updatePlace
+    try {
+      updatePlace = await Place.findById(placeId);
+    } catch (error) {
+      const err = new HttpError(
+        "Updating place failed, please try again.",
+        500
+      )
+      return next(err)
+    }
+
+    if (!updatePlace) {
+      const error = new HttpError("Place not found", 404);
+      return next(error);
+    } 
 
     updatePlace.title = title;
     updatePlace.description = description;
 
-    DUMMY_PLACES[placeIndex] = updatePlace;
+    try {
+      await updatePlace.save();
+    } catch (error) {
+      const err = new HttpError(
+        "Updating place failed, please try again.",
+        500
+      )
+      return next(err)
+    }
 
-    res.status(200).json({ place: updatePlace });
+    res.status(200).json({ place: updatePlace.toObject({ getters: true }) });
 };
 
 
