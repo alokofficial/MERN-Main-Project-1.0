@@ -4,13 +4,20 @@ import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
 import { getCoordsForAddress } from "../util/location.js";
 import Place from "../models/place.js";
-export const getPlaceById = (req, res, next) => {
+export const getPlaceById = async(req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}
-    const place = DUMMY_PLACES.find((p) => p.id === placeId);
-    if(!place){
-      throw new HttpError("Place not found", 404)
+    let place
+    try {
+      place = await Place.findById(placeId)
+    } catch (err) {
+      const error = new HttpError("Something went wrong", 404)
+      return next(error)
     }
-    res.json({ place });
+    if(!place){
+      const error = new HttpError("Place not found", 404)
+      return next(error)
+    }
+    res.json({ place: place.toObject({ getters: true }) }); // to get the id in normal form 
   };
 
 export const getPlacesByUserId = (req, res, next) => {
