@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import mongoose from "mongoose";
 
 import placesRoutes from "./routes/places-routes.js";
 import usersRoutes from "./routes/users-routes.js";
@@ -25,7 +26,14 @@ app.use((error,req, res, next) => { //error middleware by express
     res.status(error.code || 500)
     res.json({message: error.message || 'An unknown error occurred'})
 })
-
-app.listen(5000, () => {
-    console.log("Server is running on port 5000")
-})
+mongoose.connect(`mongodb://localhost:27017/places`).then(
+    () => {
+        app.listen(5000, () => {
+            console.log("Server is running on port 5000")
+        }) 
+    }
+).catch(
+    err => {
+        console.log(err)
+    }
+);
