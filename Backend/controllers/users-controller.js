@@ -49,12 +49,22 @@ export const userSignup = async(req, res, next) => {
     res.status(201).json({user:createdUser.toObject({getters:true})})
 
 };
-export const userLogin = (req, res, next) => {
+export const userLogin = async(req, res, next) => {
     const {email, password} = req.body
-    const identifiedUser = DUMMY_USERS.find(u=>u.email===email)
+    let identifiedUser;
+    try {
+        identifiedUser = await User.findOne({email:email})
+    } catch (error) {
+        const err = new HttpError(
+            "Logging in failed, please try again.",
+            500
+        )
+        return next(err)
+    }
 
     if(!identifiedUser || identifiedUser.password !== password){
-        throw new HttpError('Could not identify user, creadential seem to be wrong', 401)
+       const error = new HttpError('Could not identify user, creadential seem to be wrong', 401)
+       return next(error)
     }
     res.status(200).json({user:identifiedUser})
 };
