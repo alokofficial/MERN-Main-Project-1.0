@@ -1,8 +1,6 @@
-// import { v4 as uuid } from "uuid";
-import DUMMY_PLACES from "../db/places-dummy-data.js";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
-import { getCoordsForAddress } from "../util/location.js";
+// import { getCoordsForAddress } from "../util/location.js";
 import Place from "../models/place.js";
 export const getPlaceById = async(req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}
@@ -117,14 +115,33 @@ export const updatePlace = async(req, res, next) => {
 
 
 
-export const deletePlace = (req, res, next) => {
+export const deletePlace = async(req, res, next) => {
     const placeId = req.params.pid;
-    const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
-    if (placeIndex === -1) {
-      throw new HttpError("Place not found", 404);
+
+    let place
+    try {
+      place = await Place.findById(placeId); 
+    } catch (error) {
+      const err = new HttpError(
+        "Deleting place failed, please try again.",
+        500
+      )
+      return next(err)
     }
-    DUMMY_PLACES.splice(placeIndex, 1);
-    res.status(200).json({ message: "Deleted place." });
+    if (!place) {
+     const error = new HttpError("Place not found", 404);
+     return next(error);
+   }
+   try {
+     await place.remove();
+   } catch (error) {
+     const err = new HttpError(
+       "Deleting place failed, please try again.",
+       500
+     )
+     return next(err)
+   }
+    res.status(200).json({ message: "Place Deleted" });
 };
 
  
