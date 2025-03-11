@@ -1,10 +1,18 @@
 import User from "../models/user.js";
-
-import DUMMY_USERS from "../db/users-dummy-data.js";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
-export const getUsers = (req, res, next) => {
-   res.json({users:DUMMY_USERS})
+export const getUsers = async(req, res, next) => {
+    let users;
+    try {
+        users = await User.find({},'-password') // to hide the password
+    } catch (error) {
+        const err = new HttpError(
+            "Fetching users failed, please try again.",
+            500
+        )
+        return next(err)
+    }
+    res.json({users: users.map(user => user.toObject({getters: true}))})
 };
 export const userSignup = async(req, res, next) => {
     const errors = validationResult(req);
@@ -43,8 +51,6 @@ export const userSignup = async(req, res, next) => {
         )
         return next(err)
     }
-
-    DUMMY_USERS.push(createdUser)
 
     res.status(201).json({user:createdUser.toObject({getters:true})})
 
