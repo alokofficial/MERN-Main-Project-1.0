@@ -1,9 +1,9 @@
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
 // import { getCoordsForAddress } from "../util/location.js";
+import mongoose from "mongoose";
 import Place from "../models/place.js";
 import User from "../models/user.js";
-import mongoose from "mongoose";
 export const getPlaceById = async(req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}
     let place
@@ -145,23 +145,28 @@ export const deletePlace = async(req, res, next) => {
 
     let place
     try {
-      place = await Place.findById(placeId); 
+      place = await Place.findById(placeId).populate('creator'); 
     } catch (error) {
       const err = new HttpError(
-        "Deleting place failed, please try again.",
+        "Deleting place failed-1, please try again.",
         500
       )
       return next(err)
     }
     if (!place) {
-     const error = new HttpError("Place not found", 404);
+     const error = new HttpError("Place not found for this id", 404);
      return next(error);
    }
    try {
-     await place.remove();
+     const sess = await mongoose.startSession();
+     sess.startTransaction();
+     place.remove({session:sess})
+     place.creator.places.pull(place);
+     await place.creator.save({session:sess})
+     await sess.commitTransaction();
    } catch (error) {
      const err = new HttpError(
-       "Deleting place failed, please try again.",
+       "Deleting place failed-2, please try again.",
        500
      )
      return next(err)
