@@ -10,7 +10,10 @@ const placeSchema = new mongoose.Schema(
       lat: { type: Number },
       lng: { type: Number },
     },
-    creator: { type: String, required: true },
+    creator: { 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );

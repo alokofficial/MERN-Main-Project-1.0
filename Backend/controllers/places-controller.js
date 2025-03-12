@@ -2,6 +2,8 @@ import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
 // import { getCoordsForAddress } from "../util/location.js";
 import Place from "../models/place.js";
+import User from "../models/user.js";
+import mongoose from "mongoose";
 export const getPlaceById = async(req, res, next) => {
     const placeId = req.params.pid; //{pid: 'p1'}
     let place
@@ -36,7 +38,7 @@ export const getPlacesByUserId = async(req, res, next) => {
    
 }
 export const createPlace = async (req, res, next) => {
-    const { title, description,location, address, creator } = req.body;
+    const { title, description, address, creator } = req.body;
 
     
     // try {
@@ -55,17 +57,40 @@ export const createPlace = async (req, res, next) => {
     const createdPlace =   new Place({
       title,
       description,
-      location,
+      // location,
       address,
       creator,
       image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Newtown%2C_Wales.jpg/360px-Newtown%2C_Wales.jpg'
     });
-  
+
+    let user
     try {
-      await createdPlace.save();
+      user = await User.findById(creator)
     } catch (error) {
       const err = new HttpError(
-        "Creating place failed, please try again.",
+        "Creating place failed-1, please try again.",
+        500
+      )
+      return next(err)
+    }
+    if(!user){
+      const error = new HttpError("User not found for the provided id", 404);
+      return next(error);
+    }
+
+    console.log(user)
+
+    try{
+      const sess = await mongoose.startSession();
+      sess.startTransaction();
+      await createdPlace.save({session:sess})
+      user.places.push(createPlace)
+      await user.save({session:sess})
+      await sess.commitTransaction();
+    }
+    catch (error) {
+      const err = new HttpError(
+        "Creating place failed-2, please try again.",
         500
       )
       return next(err)
