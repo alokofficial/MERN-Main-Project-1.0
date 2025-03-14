@@ -11,13 +11,13 @@ import {
 import { useForm } from "../../shared/hooks/form-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
-// import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 
 const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-//   const [error, setError] = useState();
+  const [error, setError] = useState();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -92,18 +92,26 @@ const Auth = () => {
           }),
         });
         const responseData = await response.json();
+        if(!response.ok){
+            throw new Error(responseData.message);
+        }
         console.log(responseData);
         setIsLoading(false);
         auth.login();
       } catch (error) {
         console.log(error);
         setIsLoading(false);
-        // setError(error.message || "Something went wrong, Please try again.");
+        setError(error.message || "Something went wrong, Please try again.");
       }
     }
 
   };
-  return (
+  const errorHandler = () => {
+    setError(null);
+  };
+
+  return (<>
+  {<ErrorModal error={error} onClear={errorHandler} />}
     <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
       <h2>Login Required!</h2>
@@ -146,7 +154,7 @@ const Auth = () => {
         Switch to {isLoginMode ? "Signup" : "Login"}{" "}
       </Button>
     </Card>
-  );
+    </>);
 };
 
 export default Auth;
