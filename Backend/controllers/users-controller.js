@@ -72,5 +72,5 @@ export const userLogin = async(req, res, next) => {
        const error = new HttpError('Could not identify user, creadential seem to be wrong', 401)
        return next(error)
     }
-    res.status(200).json({user:identifiedUser})
+    res.status(200).json({message:'Logged in successfully',user:identifiedUser.toObject({getters:true})})
 };
