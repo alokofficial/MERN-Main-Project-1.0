@@ -78,10 +78,24 @@ export const userLogin = async(req, res, next) => {
         )
         return next(err)
     }
-
-    if(!identifiedUser || identifiedUser.password !== password){
+    
+    if(!identifiedUser){
        const error = new HttpError('Could not identify user, creadential seem to be wrong', 401)
        return next(error)
+    }
+    let isValidPassword = false;
+    try {
+        isValidPassword = await bcrypt.compare(password, identifiedUser.password)
+    } catch (error) {
+        const err = new HttpError(
+            "Logging in failed-1, please try again.",
+            500
+        )
+        return next(err)    
+    }
+    if(!isValidPassword){
+        const error = new HttpError('Could not identify user, creadential seem to be wrong', 401)
+        return next(error)
     }
     res.status(200).json({message:'Logged in successfully',user:identifiedUser.toObject({getters:true})})
 };
