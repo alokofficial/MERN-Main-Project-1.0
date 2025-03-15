@@ -13,6 +13,7 @@ import { AuthContext } from "../../shared/context/auth-context";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import { useHttpClient } from "../../shared/hooks/http-hook";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 
 const Auth = () => {
   const auth = useContext(AuthContext);
@@ -34,11 +35,12 @@ const Auth = () => {
   );
 
   const switchModeHandler = () => {
-    if (isLoginMode) {
+    if (!isLoginMode) {
       setFormData(
         {
           ...formState.inputs,
           name: undefined,
+          image: undefined,
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
@@ -50,6 +52,10 @@ const Auth = () => {
             value: "",
             isValid: false,
           },
+          image: {
+            value: null,
+            isValid: false,
+          },
         },
         false
       );
@@ -58,6 +64,7 @@ const Auth = () => {
   };
   const authSubmitHandler = async (event) => {
     event.preventDefault();
+    console.log(formState.inputs);
     if (isLoginMode) {
        try {
         const responseData = await sendRequest("http://localhost:5000/api/users/login","POST",JSON.stringify({
@@ -99,6 +106,14 @@ const Auth = () => {
             validators={[VALIDATOR_REQUIRE()]}
             errorText="Please enter a valid username, at least 5 characters."
             onInput={inputHandler}
+          />
+        )}
+        {!isLoginMode && (
+          <ImageUpload 
+            center
+            id="image"
+            onInput={inputHandler}
+            errorText="Please provide an image."
           />
         )}
         <Input
