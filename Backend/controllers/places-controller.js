@@ -1,3 +1,4 @@
+import fs from "fs";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
 // import { getCoordsForAddress } from "../util/location.js";
@@ -160,6 +161,8 @@ export const deletePlace = async(req, res, next) => {
      const error = new HttpError("Place not found for this id", 404);
      return next(error);
    }
+
+   const imagePath = place.image;
    try {
      const sess = await mongoose.startSession();
      sess.startTransaction();
@@ -174,6 +177,10 @@ export const deletePlace = async(req, res, next) => {
      )
      return next(err)
    }
+
+   fs.unlink(imagePath, err => {
+     console.log(err)
+   })
     res.status(200).json({ message: "Place Deleted" });
 };
 
