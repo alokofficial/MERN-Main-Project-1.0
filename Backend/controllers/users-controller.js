@@ -20,7 +20,7 @@ export const userSignup = async(req, res, next) => {
       return next(new HttpError("Invalid inputs passed, please check your data", 422));
     }
     
-    const {name, email, password,places} = req.body
+    const {name, email, password} = req.body
 
     let existingUser;
     try {
@@ -39,8 +39,8 @@ export const userSignup = async(req, res, next) => {
         name,
         email,
         password,
-        image:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Newtown%2C_Wales.jpg/360px-Newtown%2C_Wales.jpg',
-        places,
+        image:req.file.path,
+        places:[]
     })
     try {
         await createdUser.save()
