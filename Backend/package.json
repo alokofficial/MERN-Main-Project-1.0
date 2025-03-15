@@ -17,6 +17,7 @@
     "express-validator": "^7.2.1",
     "mongoose": "^8.12.1",
     "mongoose-unique-validation": "^0.1.0",
+    "multer": "^1.4.5-lts.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
