@@ -63,7 +63,7 @@ export const createPlace = async (req, res, next) => {
       // location,
       address,
       creator,
-      image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Newtown%2C_Wales.jpg/360px-Newtown%2C_Wales.jpg'
+      image: req.file.path,
     });
 
     let user
