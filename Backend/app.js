@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
@@ -10,6 +11,7 @@ import HttpError from "./models/http-error.js";
 const app = express();
 
 app.use(bodyParser.json())
+app.use('/uploads/images', express.static(path.join('uploads', 'images')))
 // app.use(bodyParser.urlencoded({extended:true}))
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
