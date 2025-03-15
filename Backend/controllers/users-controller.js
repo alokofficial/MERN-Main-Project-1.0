@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs"
 export const getUsers = async(req, res, next) => {
     let users;
     try {
@@ -35,10 +36,20 @@ export const userSignup = async(req, res, next) => {
         const error = new HttpError("User exists already with this email, please login instead", 422);
         return next(error)
     }
+    let hashedPassword;
+    try {
+        hashedPassword = await bcrypt.hash(password, 12)
+    } catch (error) {
+        const err = new HttpError(
+            "Signing up failed-1, please try again.",
+            500
+        )
+        return next(err)
+    }
     const createdUser= new User({
         name,
         email,
-        password,
+        password:hashedPassword,
         image:req.file.path,
         places:[]
     })
