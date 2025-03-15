@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import HttpError from "../models/http-error.js";
 import { validationResult } from "express-validator";
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 export const getUsers = async(req, res, next) => {
     let users;
     try {
@@ -62,8 +63,23 @@ export const userSignup = async(req, res, next) => {
         )
         return next(err)
     }
+    let token;
+    try {
+        token = jwt.sign(
+            {userId:createdUser.id, email:createdUser.email},
+            "supersecret_dont_share",
+            {expiresIn:'1h'}
+        )
+    } catch (error) {
+        const err = new HttpError(
+            "Signing up failed-2, please try again.",
+            500
+        )
+        return next(err)
+    }
+    res.status(201).json({userId:createdUser.id, email:createdUser.email, token:token})
 
-    res.status(201).json({user:createdUser.toObject({getters:true})})
+    // res.status(201).json({user:createdUser.toObject({getters:true})})
 
 };
 export const userLogin = async(req, res, next) => {
@@ -97,5 +113,20 @@ export const userLogin = async(req, res, next) => {
         const error = new HttpError('Could not identify user, creadential seem to be wrong', 401)
         return next(error)
     }
-    res.status(200).json({message:'Logged in successfully',user:identifiedUser.toObject({getters:true})})
+
+    let token;
+    try {
+        token = jwt.sign(
+            {userId:identifiedUser.id, email:identifiedUser.email},
+            "supersecret_dont_share",
+            {expiresIn:'1h'}
+        )
+    } catch (error) {
+        const err = new HttpError(
+            "logging in failed-2, please try again.",
+            500
+        )
+        return next(err)
+    }
+    res.status(200).json({userId:identifiedUser.id, email:identifiedUser.email, token:token})
 };
