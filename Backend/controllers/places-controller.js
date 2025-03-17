@@ -120,7 +120,10 @@ export const updatePlace = async(req, res, next) => {
       )
       return next(err)
     }
-
+    if(updatePlace.creator.toString() !== req.userData.userId){
+      const error = new HttpError("You are not allowed to edit this place", 401);
+      return next(error);
+    }
     if (!updatePlace) {
       const error = new HttpError("Place not found", 404);
       return next(error);
