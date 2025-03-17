@@ -51,7 +51,8 @@ const NewPlace = () => {
       await sendRequest(
         "http://localhost:5000/api/places",
         "POST",
-        formData,
+        formData,{
+          Authorization: "Bearer " + auth.token,}
       );
       history.push("/");
     } catch (error) {}
